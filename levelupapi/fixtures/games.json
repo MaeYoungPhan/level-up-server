@@ -1,0 +1,22 @@
+[
+    {
+        "model": "levelupapi.game",
+        "pk": 1,
+        "fields": {
+            "name": "Monopoly",
+            "gamer_id": 1,
+            "game_type": 1,
+            "max_players": 8
+        }
+    },
+    {
+        "model": "levelupapi.game",
+        "pk": 2,
+        "fields": {
+            "name": "Caves and Chimeras",
+            "gamer_id": 1,
+            "game_type": 2,
+            "max_players": 25
+        }
+    }
+]
