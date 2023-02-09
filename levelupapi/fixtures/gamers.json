@@ -4,7 +4,6 @@
         "pk": 1,
         "fields": {
             "user": 1,
-            "username": "Coachella",
             "bio": "Me gustan juegos. Estan muy divertidos."
         }
     }
