@@ -9,7 +9,7 @@
             "date": "2023-02-14",
             "time": "20:30",
             "location": "Game Stop",
-            "game_id": 2
+            "game": 2
         }
     },
     {
@@ -22,7 +22,7 @@
             "date": "2023-02-22",
             "time": "16:00",
             "location": "Grandma's House",
-            "game_id": 1
+            "game": 1
         }
     }
 ]
