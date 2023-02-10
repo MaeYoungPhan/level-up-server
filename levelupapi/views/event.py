@@ -3,7 +3,7 @@ from django.http import HttpResponseServerError
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers, status
-from levelupapi.models import Event
+from levelupapi.models import Event, Gamer, Game
 
 
 class EventView(ViewSet):
@@ -43,9 +43,30 @@ class EventView(ViewSet):
         
         return Response(serializer.data, status=status.HTTP_200_OK) #Constructs response and returns data requested by the client in the response body as an array of JSON stringified objects
 
+    def create(self, request):
+        """Handle POST operations
+
+        Returns
+            Response -- JSON serialized game instance
+        """
+        gamer_id = Gamer.objects.get(user=request.auth.user) # connect with database and get user object based on token
+        game_id = Game.objects.get(pk=request.data["game"]) # connect with database to retrieve Game object
+
+        event = Event.objects.create(
+            organizer=gamer_id,
+            name=request.data["name"],
+            description=request.data["description"],
+            date=request.data["date"],
+            time=request.data["time"],
+            location=request.data["location"],
+            game=game_id
+        )
+        serializer = EventSerializer(event)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 class EventSerializer(serializers.ModelSerializer):
     """JSON serializer for events"""
     # Converts meta data requested to JSON stringified object using Event as model
     class Meta: # configuration for serializer
         model = Event # model to use
-        fields = ('id', 'organizer', 'name', 'description', 'date', 'time', 'location', 'game_id') # fields to include
+        fields = ('id', 'organizer', 'name', 'description', 'date', 'time', 'location', 'game') # fields to include

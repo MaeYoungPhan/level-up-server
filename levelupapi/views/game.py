@@ -3,7 +3,7 @@ from django.http import HttpResponseServerError
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers, status
-from levelupapi.models import Game
+from levelupapi.models import Game, Gamer, GameType
 
 
 class GameView(ViewSet):
@@ -32,12 +32,30 @@ class GameView(ViewSet):
         games = Game.objects.all()
         #passes instances stored in game variable to the serializer class to construct data into JSON stringified objects, which it then assigns to variable serializer
         serializer = GameSerializer(games, many=True)
-        
+
         return Response(serializer.data, status=status.HTTP_200_OK) #Constructs response and returns data requested by the client in the response body as an array of JSON stringified objects
+
+    def create(self, request):
+        """Handle POST operations
+
+        Returns
+            Response -- JSON serialized game instance
+        """
+        gamer_id = Gamer.objects.get(user=request.auth.user) # connect with database and get user object based on token
+        game_type = GameType.objects.get(pk=request.data["game_type"]) # connect with database to retrieve GameType object
+
+        game = Game.objects.create(
+            name=request.data["name"],
+            gamer=gamer_id,
+            game_type=game_type,
+            max_players=request.data["max_players"]
+        )
+        serializer = GameSerializer(game)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class GameSerializer(serializers.ModelSerializer):
     """JSON serializer for games"""
     # Converts meta data requested to JSON stringified object using Game as model
     class Meta: # configuration for serializer
         model = Game # model to use
-        fields = ('id', 'name', 'gamer_id', 'game_type', 'max_players') # fields to include
+        fields = ('id', 'name', 'gamer', 'game_type', 'max_players') # fields to include
