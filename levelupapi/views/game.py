@@ -53,9 +53,41 @@ class GameView(ViewSet):
         serializer = GameSerializer(game)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    def update(self, request, pk):
+        """Handle PUT requests for a game
+
+        Returns:
+            Response -- Empty body with 204 status code
+        """
+
+        game = Game.objects.get(pk=pk)
+        game.name = request.data["name"]
+        game.max_players = request.data["max_players"]
+
+        game_type = GameType.objects.get(pk=request.data["game_type"])
+        game.game_type = game_type
+        game.save()
+
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
+
+class GamerSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Gamer
+        fields = ('id', )
+
+class GameTypeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = GameType
+        fields = ('id', 'type', )
+
+
 class GameSerializer(serializers.ModelSerializer):
     """JSON serializer for games"""
     # Converts meta data requested to JSON stringified object using Game as model
+    gamer = GamerSerializer(many=False)
+    game_type = GameTypeSerializer(many=False)
     class Meta: # configuration for serializer
         model = Game # model to use
         fields = ('id', 'name', 'gamer', 'game_type', 'max_players') # fields to include
