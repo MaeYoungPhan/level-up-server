@@ -4,6 +4,7 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers, status
 from levelupapi.models import Event, Gamer, Game
+from rest_framework.decorators import action
 
 
 class EventView(ViewSet):
@@ -37,6 +38,12 @@ class EventView(ViewSet):
         
         else:
             pass
+
+        # Set the `joined` property on every event
+        for event in events:
+            gamer = Gamer.objects.get(user=request.auth.user)
+            # Check to see if the gamer is in the attendees list on the event
+            event.joined = gamer in event.attendees.all()
 
         #passes instances stored in event variable to the serializer class to construct data into JSON stringified objects, which it then assigns to variable serializer
         serializer = EventSerializer(events, many=True)
@@ -89,6 +96,25 @@ class EventView(ViewSet):
         event.delete()
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
+    @action(methods=['post'], detail=True)
+    def signup(self, request, pk):
+        """Post request for a user to sign up for an event"""
+
+        gamer = Gamer.objects.get(user=request.auth.user)
+        event = Event.objects.get(pk=pk)
+        event.attendees.add(gamer)
+        return Response({'message': 'Gamer added'}, status=status.HTTP_201_CREATED)
+
+    @action(methods=['delete'], detail=True)
+    def leave(self, request, pk):
+        """Delete request for a user to un-sign up for an event"""
+
+        gamer = Gamer.objects.get(user=request.auth.user)
+        event = Event.objects.get(pk=pk)
+        event.attendees.remove(gamer)
+        return Response({'message': 'Gamer removed'}, status=status.HTTP_204_NO_CONTENT)
+
+
 class GamerSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -109,4 +135,4 @@ class EventSerializer(serializers.ModelSerializer):
 
     class Meta: # configuration for serializer
         model = Event # model to use
-        fields = ('id', 'organizer', 'name', 'description', 'date', 'time', 'location', 'game') # fields to include
+        fields = ('id', 'organizer', 'name', 'description', 'date', 'time', 'location', 'game', 'attendees', 'joined') # fields to include
