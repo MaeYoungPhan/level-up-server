@@ -16,12 +16,15 @@ class EventView(ViewSet):
         Returns:
             Response -- JSON serialized event
         """
-        event = Event.objects.get(pk=pk) #make connection with server to return single query set where the primary key matches the pk requested by the client and assigns the object instance found to the event variable
+        try:
+            event = Event.objects.get(pk=pk) #make connection with server to return single query set where the primary key matches the pk requested by the client and assigns the object instance found to the event variable
 
-        serializer = EventSerializer(event) #passes the instance stored in event through serializer to become a JSON stringified object and assigns it to serializer variable
+            serializer = EventSerializer(event) #passes the instance stored in event through serializer to become a JSON stringified object and assigns it to serializer variable
 
-        return Response(serializer.data, status=status.HTTP_200_OK) # returns serializer data to the client as a response. Response body is JSON stringified object of requested data.
+            return Response(serializer.data, status=status.HTTP_200_OK) # returns serializer data to the client as a response. Response body is JSON stringified object of requested data.
 
+        except Event.DoesNotExist:
+            return Response(None, status=status.HTTP_404_NOT_FOUND)
 
     def list(self, request):
         """Handle GET requests to get all event
@@ -112,7 +115,7 @@ class EventView(ViewSet):
         gamer = Gamer.objects.get(user=request.auth.user)
         event = Event.objects.get(pk=pk)
         event.attendees.remove(gamer)
-        return Response({'message': 'Gamer removed'}, status=status.HTTP_204_NO_CONTENT)
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
 class GamerSerializer(serializers.ModelSerializer):

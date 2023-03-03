@@ -15,12 +15,15 @@ class GameView(ViewSet):
         Returns:
             Response -- JSON serialized game
         """
-        game = Game.objects.get(pk=pk) #make connection with server to return single query set where the primary key matches the pk requested by the client and assigns the object instance found to the game variable
+        try:
+            game = Game.objects.get(pk=pk) #make connection with server to return single query set where the primary key matches the pk requested by the client and assigns the object instance found to the game variable
 
-        serializer = GameSerializer(game) #passes the instance stored in game through serializer to become a JSON stringified object and assigns it to serializer variable
+            serializer = GameSerializer(game) #passes the instance stored in game through serializer to become a JSON stringified object and assigns it to serializer variable
 
-        return Response(serializer.data, status=status.HTTP_200_OK) # returns serializer data to the client as a response. Response body is JSON stringified object of requested data.
+            return Response(serializer.data, status=status.HTTP_200_OK) # returns serializer data to the client as a response. Response body is JSON stringified object of requested data.
 
+        except Game.DoesNotExist:
+            return Response(None, status=status.HTTP_404_NOT_FOUND)
 
     def list(self, request):
         """Handle GET requests to get all game
