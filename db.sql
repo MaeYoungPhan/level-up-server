@@ -4,6 +4,7 @@ SELECT g.id,
     e.id,
     e.date,
     e.time,
+    a.gamer_id,
     s.name AS game_name
 FROM levelupapi_gamer g
 JOIN auth_user u
@@ -12,3 +13,5 @@ JOIN levelupapi_event e
     ON e.organizer_id = g.id
 JOIN levelupapi_game s
     ON e.game_id = s.id
+JOIN levelupapi_eventattendee a
+    ON e.id = a.event_id

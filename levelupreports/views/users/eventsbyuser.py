@@ -18,6 +18,7 @@ class UserEventList(View):
                 e.id,
                 e.date,
                 e.time,
+                a.gamer_id,
                 s.name AS game_name
             FROM levelupapi_gamer g
             JOIN auth_user u
@@ -26,6 +27,8 @@ class UserEventList(View):
                 ON e.organizer_id = g.id
             JOIN levelupapi_game s
                 ON e.game_id = s.id
+            JOIN levelupapi_eventattendee a
+                ON e.id = a.event_id
             """)
             # Pass the db_cursor to the dict_fetch_all function to turn the fetch_all() response into a dictionary
             dataset = dict_fetch_all(db_cursor)
